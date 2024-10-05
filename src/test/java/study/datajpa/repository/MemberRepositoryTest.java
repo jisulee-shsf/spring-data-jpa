@@ -11,6 +11,7 @@ import study.datajpa.entity.Team;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -130,5 +131,25 @@ class MemberRepositoryTest {
         for (Member member : members) {
             System.out.println("member = " + member);
         }
+    }
+
+    @Test
+    public void returnType() {
+        Member member1 = new Member("memberA", 10);
+        Member member2 = new Member("memberA", 20);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        Member member = memberRepository.findMemberByUsername("memberC");
+        System.out.println("member = " + member); //null
+
+        List<Member> listMember = memberRepository.findListByUsername("memberC");
+        System.out.println("listMember.size() = " + listMember.size()); //0
+
+        Optional<Member> optionalMember1 = memberRepository.findOptionalByUsername("memberC");
+        System.out.println("optionalMember1 = " + optionalMember1); //Optional.empty
+
+        Optional<Member> optionalMember2 = memberRepository.findOptionalByUsername("memberA");
+        System.out.println("optionalMember2 = " + optionalMember2); //NonUniqueResultException -> IncorrectResultSizeDataAccessException
     }
 }
