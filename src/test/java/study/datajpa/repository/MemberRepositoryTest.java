@@ -1,5 +1,7 @@
 package study.datajpa.repository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,6 +27,8 @@ class MemberRepositoryTest {
 
     @Autowired MemberRepository memberRepository;
     @Autowired TeamRepository teamRepository;
+    @PersistenceContext
+    EntityManager em;
 
     @Test
     public void testMember() {
@@ -176,5 +180,22 @@ class MemberRepositoryTest {
         assertThat(page.hasNext()).isTrue();
 
         Page<MemberDto> toMap = page.map(m -> new MemberDto(m.getId(), m.getUsername(), null));
+    }
+
+    @Test
+    public void bulkAgePlus() {
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 20));
+        memberRepository.save(new Member("member3", 30));
+        memberRepository.save(new Member("member4", 40));
+        memberRepository.save(new Member("member5", 50));
+
+        int resultCount = memberRepository.bulkAgePlus(30);
+//        em.clear(); @Modifying(clearAutomatically = true)
+
+        Member findMember = memberRepository.findByUsername("member5").get(0);
+        System.out.println("findMember = " + findMember);
+
+        assertThat(resultCount).isEqualTo(3);
     }
 }
