@@ -5,9 +5,7 @@ import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
@@ -244,5 +242,31 @@ class MemberRepositoryTest {
     @Test
     public void callCustom() {
         List<Member> result = memberRepository.findMemberCustom();
+    }
+
+    @Test
+    public void queryByExample() {
+        Team team1 = new Team("teamA");
+        em.persist(team1);
+
+        Member member1 = new Member("memberA", 0, team1);
+        Member member2 = new Member("memberB", 0, team1);
+        em.persist(member1);
+        em.persist(member2);
+
+        em.flush();
+        em.clear();
+
+        System.out.println("==========");
+
+        Member member = new Member("memberA");
+        Team team = new Team("teamA");
+        member.setTeam(team);
+
+        ExampleMatcher exampleMatcher = ExampleMatcher.matching().withIgnorePaths("age");
+        Example<Member> example = Example.of(member, exampleMatcher);
+        List<Member> result = memberRepository.findAll(example);
+
+        assertThat(result.get(0).getUsername()).isEqualTo("memberA");
     }
 }
